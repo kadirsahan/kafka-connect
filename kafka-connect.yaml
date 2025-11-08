@@ -1,0 +1,49 @@
+# Kafka Connect with Debezium connectors
+# Strimzi KafkaConnect CRD
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-oracle-connect
+  namespace: kraft-kafka-connect
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  replicas: 2
+  image: kadirsahan/kafka-connect-strimzi-build:1.4  # ✅ Debezium 3.3.0.Final + Debezium JDBC Sink for Kafka 4.0
+  bootstrapServers: kraft-kafka-cluster-kafka-bootstrap.kraft-kafka.svc.cluster.local:9092
+  config:
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: true
+    value.converter.schemas.enable: true
+    config.storage.replication.factor: 1
+    offset.storage.replication.factor: 1
+    status.storage.replication.factor: 1
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 300m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+  template:
+    pod:
+      volumes:
+        - name: postgres-credentials
+          secret:
+            secretName: postgres-credentials
+    connectContainer:
+      volumeMounts:
+        - name: postgres-credentials
+          mountPath: /mnt/postgres-credentials
+      env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
