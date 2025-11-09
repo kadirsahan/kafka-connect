@@ -11,6 +11,20 @@ spec:
   replicas: {{ .Values.kafkaConnect.replicas }}
   image: {{ .Values.kafkaConnect.image }}
   bootstrapServers: {{ .Values.kafkaConnect.bootstrapServers }}
+  {{- if .Values.kafkaConnect.tls.enabled }}
+  tls:
+    trustedCertificates:
+      - secretName: {{ .Values.kafkaConnect.tls.clusterCaSecret }}
+        certificate: {{ .Values.kafkaConnect.tls.clusterCaCertificate }}
+  {{- end }}
+  {{- if .Values.kafkaConnect.authentication.enabled }}
+  authentication:
+    type: {{ .Values.kafkaConnect.authentication.type }}
+    certificateAndKey:
+      secretName: {{ .Values.kafkaConnect.authentication.userSecret }}
+      certificate: {{ .Values.kafkaConnect.authentication.userCertificate }}
+      key: {{ .Values.kafkaConnect.authentication.userKey }}
+  {{- end }}
   config:
     group.id: {{ .Values.kafkaConnect.config.groupId }}
     offset.storage.topic: {{ .Values.kafkaConnect.config.offsetStorageTopic }}
