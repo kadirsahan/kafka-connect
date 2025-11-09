@@ -1,0 +1,37 @@
+{{- range .Values.kafkaUsers }}
+{{- if .enabled }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    strimzi.io/cluster: {{ .kafkaCluster }}
+spec:
+  authentication:
+    type: {{ .authentication }}
+{{- if .authorization.enabled }}
+  authorization:
+    type: {{ .authorization.type }}
+    acls:
+{{- range .authorization.acls }}
+      - resource:
+          type: {{ .resource.type }}
+{{- if .resource.name }}
+          name: {{ .resource.name }}
+{{- end }}
+          patternType: {{ .resource.patternType }}
+{{- if .operations }}
+        operations:
+{{- range .operations }}
+          - {{ . }}
+{{- end }}
+{{- end }}
+{{- if .host }}
+        host: {{ .host }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
