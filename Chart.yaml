@@ -1,0 +1,15 @@
+apiVersion: v2
+name: kafka-connect
+description: Kafka Connect with Debezium connectors using Strimzi operator
+type: application
+version: 1.0.0
+appVersion: "3.3.0"
+keywords:
+  - kafka
+  - kafka-connect
+  - debezium
+  - strimzi
+  - cdc
+home: https://github.com/kadirsahan/kafka-connect
+maintainers:
+  - name: kadirsahan

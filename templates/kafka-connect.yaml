@@ -1,0 +1,50 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: {{ .Values.nameOverride }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    {{- if .Values.kafkaConnect.useConnectorResources }}
+    strimzi.io/use-connector-resources: "true"
+    {{- end }}
+spec:
+  replicas: {{ .Values.kafkaConnect.replicas }}
+  image: {{ .Values.kafkaConnect.image }}
+  bootstrapServers: {{ .Values.kafkaConnect.bootstrapServers }}
+  config:
+    group.id: {{ .Values.kafkaConnect.config.groupId }}
+    offset.storage.topic: {{ .Values.kafkaConnect.config.offsetStorageTopic }}
+    config.storage.topic: {{ .Values.kafkaConnect.config.configStorageTopic }}
+    status.storage.topic: {{ .Values.kafkaConnect.config.statusStorageTopic }}
+    key.converter: {{ .Values.kafkaConnect.config.keyConverter }}
+    value.converter: {{ .Values.kafkaConnect.config.valueConverter }}
+    key.converter.schemas.enable: {{ .Values.kafkaConnect.config.keySchemasEnable }}
+    value.converter.schemas.enable: {{ .Values.kafkaConnect.config.valueSchemasEnable }}
+    config.storage.replication.factor: {{ .Values.kafkaConnect.config.configStorageReplicationFactor }}
+    offset.storage.replication.factor: {{ .Values.kafkaConnect.config.offsetStorageReplicationFactor }}
+    status.storage.replication.factor: {{ .Values.kafkaConnect.config.statusStorageReplicationFactor }}
+  resources:
+    requests:
+      memory: {{ .Values.kafkaConnect.resources.requests.memory }}
+      cpu: {{ .Values.kafkaConnect.resources.requests.cpu }}
+    limits:
+      memory: {{ .Values.kafkaConnect.resources.limits.memory }}
+      cpu: {{ .Values.kafkaConnect.resources.limits.cpu }}
+  {{- if .Values.postgresSecret.enabled }}
+  template:
+    pod:
+      volumes:
+        - name: {{ .Values.postgresSecret.name }}
+          secret:
+            secretName: {{ .Values.postgresSecret.name }}
+    connectContainer:
+      volumeMounts:
+        - name: {{ .Values.postgresSecret.name }}
+          mountPath: /mnt/{{ .Values.postgresSecret.name }}
+      env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.postgresSecret.name }}
+              key: password
+  {{- end }}

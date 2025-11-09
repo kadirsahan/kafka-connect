@@ -1,0 +1,52 @@
+# Default values for kafka-connect
+# This is a YAML-formatted file.
+
+# Cluster name and namespace
+nameOverride: "debezium-oracle-connect"
+namespace: "kraft-kafka-connect"
+
+# Kafka Connect configuration
+kafkaConnect:
+  # Number of replicas
+  replicas: 2
+
+  # Custom image with Debezium connectors
+  image: "kadirsahan/kafka-connect-strimzi-build:1.4"
+
+  # Bootstrap servers - Kafka cluster connection
+  bootstrapServers: "kraft-kafka-cluster-kafka-bootstrap.kraft-kafka.svc.cluster.local:9092"
+
+  # Enable connector resources (CRD-based connector management)
+  useConnectorResources: true
+
+  # Kafka Connect configuration
+  config:
+    groupId: "connect-cluster"
+    offsetStorageTopic: "connect-cluster-offsets"
+    configStorageTopic: "connect-cluster-configs"
+    statusStorageTopic: "connect-cluster-status"
+    keyConverter: "org.apache.kafka.connect.json.JsonConverter"
+    valueConverter: "org.apache.kafka.connect.json.JsonConverter"
+    keySchemasEnable: true
+    valueSchemasEnable: true
+    configStorageReplicationFactor: 1
+    offsetStorageReplicationFactor: 1
+    statusStorageReplicationFactor: 1
+
+  # Resource limits and requests
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "300m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+# PostgreSQL credentials secret
+postgresSecret:
+  # Enable creation of postgres-credentials secret
+  enabled: true
+  name: "postgres-credentials"
+  # Base64 encoded password
+  # To encode: echo -n 'yourpassword' | base64
+  password: "NlpJUEpBRTdrMDdWTG9iR2J4cXh5eXZVb3kyTWFXTTdYdG9sVm5zWE40bWNmRFRQNjRCUnlkUmF6S01VN3paRQ=="

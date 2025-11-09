@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: kraft-kafka-connect
-  labels:
-    name: kraft-kafka-connect

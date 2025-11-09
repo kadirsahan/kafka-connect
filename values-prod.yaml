@@ -1,0 +1,37 @@
+# Production environment values
+# High availability and production-grade resources
+
+nameOverride: "debezium-oracle-connect"
+namespace: "kraft-kafka-connect"
+
+kafkaConnect:
+  replicas: 3  # HA: 3 replicas for production
+  image: "kadirsahan/kafka-connect-strimzi-build:1.4"
+  bootstrapServers: "kraft-kafka-cluster-kafka-bootstrap.kraft-kafka.svc.cluster.local:9092"
+  useConnectorResources: true
+
+  config:
+    groupId: "connect-cluster"
+    offsetStorageTopic: "connect-cluster-offsets"
+    configStorageTopic: "connect-cluster-configs"
+    statusStorageTopic: "connect-cluster-status"
+    keyConverter: "org.apache.kafka.connect.json.JsonConverter"
+    valueConverter: "org.apache.kafka.connect.json.JsonConverter"
+    keySchemasEnable: true
+    valueSchemasEnable: true
+    configStorageReplicationFactor: 3  # Full replication for prod
+    offsetStorageReplicationFactor: 3
+    statusStorageReplicationFactor: 3
+
+  resources:
+    requests:
+      memory: "1Gi"  # Higher resources for prod
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+postgresSecret:
+  enabled: true
+  name: "postgres-credentials"
+  password: "NlpJUEpBRTdrMDdWTG9iR2J4cXh5eXZVb3kyTWFXTTdYdG9sVm5zWE40bWNmRFRQNjRCUnlkUmF6S01VN3paRQ=="

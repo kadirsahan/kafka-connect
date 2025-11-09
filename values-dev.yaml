@@ -1,0 +1,37 @@
+# Development environment values
+# Minimal resources for local/dev clusters
+
+nameOverride: "debezium-oracle-connect"
+namespace: "kraft-kafka-connect"
+
+kafkaConnect:
+  replicas: 1  # Single replica for dev
+  image: "kadirsahan/kafka-connect-strimzi-build:1.4"
+  bootstrapServers: "kraft-kafka-cluster-kafka-bootstrap.kraft-kafka.svc.cluster.local:9092"
+  useConnectorResources: true
+
+  config:
+    groupId: "connect-cluster"
+    offsetStorageTopic: "connect-cluster-offsets"
+    configStorageTopic: "connect-cluster-configs"
+    statusStorageTopic: "connect-cluster-status"
+    keyConverter: "org.apache.kafka.connect.json.JsonConverter"
+    valueConverter: "org.apache.kafka.connect.json.JsonConverter"
+    keySchemasEnable: true
+    valueSchemasEnable: true
+    configStorageReplicationFactor: 1  # Single replica for dev
+    offsetStorageReplicationFactor: 1
+    statusStorageReplicationFactor: 1
+
+  resources:
+    requests:
+      memory: "256Mi"  # Lower resources for dev
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+postgresSecret:
+  enabled: true
+  name: "postgres-credentials"
+  password: "NlpJUEpBRTdrMDdWTG9iR2J4cXh5eXZVb3kyTWFXTTdYdG9sVm5zWE40bWNmRFRQNjRCUnlkUmF6S01VN3paRQ=="
