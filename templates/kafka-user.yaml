@@ -19,17 +19,12 @@ spec:
       - resource:
           type: {{ .resource.type }}
 {{- if .resource.name }}
-          name: {{ .resource.name }}
+          name: {{ .resource.name | quote }}
 {{- end }}
           patternType: {{ .resource.patternType }}
-{{- if .operations }}
         operations:
 {{- range .operations }}
           - {{ . }}
-{{- end }}
-{{- end }}
-{{- if .host }}
-        host: {{ .host }}
 {{- end }}
 {{- end }}
 {{- end }}
